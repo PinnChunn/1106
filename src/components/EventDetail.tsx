@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ArrowLeft, Calendar, Clock, MapPin, Users, Award, Brain, Palette, Code, ChevronRight, Linkedin, Mail, Globe, Book } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
-import AuthModal from './AuthModal';
-import PaymentModal from './PaymentModal';
 
 interface Instructor {
   name: string;
@@ -96,295 +94,206 @@ const events: Record<string, Event> = {
 export default function EventDetail() {
   const { id } = useParams();
   const event = id ? events[id] : null;
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isRegistered, setIsRegistered] = useState(false);
 
   if (!event) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Event Not Found</h2>
-          <Link
-            to="/"
-            className="text-indigo-600 hover:text-indigo-700 flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
+          <h2 className="text-2xl font-bold mb-4">Event Not Found</h2>
+          <Link to="/" className="text-indigo-600 hover:text-indigo-700">
+            Return to Home
           </Link>
         </div>
       </div>
     );
   }
 
-  const handleRegistration = () => {
-    if (!isAuthenticated) {
-      setIsAuthModalOpen(true);
-      return;
-    }
-    setIsPaymentModalOpen(true);
-  };
-
-  const handleAuthSuccess = () => {
-    setIsAuthenticated(true);
-    setIsAuthModalOpen(false);
-    setIsPaymentModalOpen(true);
-  };
-
-  const handlePaymentSuccess = () => {
-    setIsPaymentModalOpen(false);
-    setIsRegistered(true);
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 pt-24 pb-16">
+    <div className="pt-24 pb-16">
       <div className="container mx-auto px-6">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 group"
-        >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          Back to Events
+        <Link to="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8">
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Events</span>
         </Link>
 
-        {/* Hero Section */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-12">
-          <div className="relative h-96">
-            <img
-              src={event.imageUrl}
-              alt={event.title}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-              <h1 className="text-4xl font-bold mb-4">{event.title}</h1>
-              <div className="flex flex-wrap gap-6">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  <span>{event.date}</span>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <img 
+                src={event.imageUrl}
+                alt={event.title}
+                className="w-full h-64 object-cover"
+              />
+              
+              <div className="p-8">
+                <h1 className="text-3xl font-bold mb-6">{event.title}</h1>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-indigo-600" />
+                    <span>{event.date}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-indigo-600" />
+                    <span>{event.time}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-indigo-600" />
+                    <span>{event.format}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-indigo-600" />
+                    <span>{event.attendeeLimit} seats</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5" />
-                  <span>{event.time}</span>
+
+                <div className="prose max-w-none">
+                  {event.description.split('\n\n').map((paragraph, index) => (
+                    <p key={index} className="mb-4">{paragraph}</p>
+                  ))}
                 </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5" />
-                  <span>{event.format}</span>
+
+                <div className="mt-8">
+                  <h2 className="text-xl font-bold mb-4">Learning Outcomes</h2>
+                  <ul className="space-y-3">
+                    {event.learningOutcomes.map((outcome, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <Award className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-1" />
+                        <span>{outcome}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  <span>Limited to {event.attendeeLimit} attendees</span>
+
+                <div className="mt-8">
+                  <h2 className="text-xl font-bold mb-4">Requirements</h2>
+                  <ul className="space-y-3">
+                    {event.requirements.map((req, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <ChevronRight className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-1" />
+                        <span>{req}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-12">
-            {/* Description */}
-            <section className="bg-white rounded-2xl p-8 shadow-lg">
-              <h2 className="text-2xl font-bold mb-6">About This Workshop</h2>
-              <div className="prose prose-indigo max-w-none">
-                {event.description.split('\n\n').map((paragraph, index) => (
-                  <p key={index} className="mb-4 text-gray-600 leading-relaxed">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-            </section>
-
-            {/* Learning Outcomes */}
-            <section className="bg-white rounded-2xl p-8 shadow-lg">
-              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <Award className="w-6 h-6 text-indigo-600" />
-                Learning Outcomes
-              </h2>
-              <ul className="space-y-4">
-                {event.learningOutcomes.map((outcome, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <ChevronRight className="w-4 h-4 text-indigo-600" />
-                    </div>
-                    <span className="text-gray-600">{outcome}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            {/* Requirements */}
-            <section className="bg-white rounded-2xl p-8 shadow-lg">
-              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <Code className="w-6 h-6 text-indigo-600" />
-                Requirements
-              </h2>
-              <ul className="space-y-4">
-                {event.requirements.map((requirement, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <ChevronRight className="w-4 h-4 text-indigo-600" />
-                    </div>
-                    <span className="text-gray-600">{requirement}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-8">
+          <div className="lg:col-span-1">
             {/* Price Card */}
-            <div className="bg-white rounded-2xl p-8 shadow-lg">
-              <div className="text-center mb-6">
-                <div className="text-4xl font-bold text-gray-900 mb-2">
-                  {event.price} EX3
-                </div>
+            <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+              <div className="flex justify-between items-center mb-6">
+                <div className="text-2xl font-bold">{event.price} EX3</div>
                 <div className="text-gray-500">≈ $10.00 USD</div>
               </div>
-              <button 
-                onClick={handleRegistration}
-                disabled={isRegistered}
-                className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300 mb-4 ${
-                  isRegistered
-                    ? 'bg-green-100 text-green-700 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700'
-                }`}
-              >
-                {isRegistered ? 'Registered' : 'Register Now'}
+              
+              <button className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 mb-4">
+                Register Now
               </button>
-              <p className="text-sm text-gray-500 text-center">
-                30-day money-back guarantee
-              </p>
+
+              <div className="text-sm text-gray-500 text-center">
+                {event.attendeeLimit} spots remaining
+              </div>
             </div>
 
             {/* Instructor Card */}
-            <div className="bg-white rounded-2xl p-8 shadow-lg">
-              <h2 className="text-2xl font-bold mb-6">Instructor</h2>
-              <div className="flex items-start gap-4 mb-6">
-                <img
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="flex items-center gap-4 mb-6">
+                <img 
                   src={event.instructor.avatar}
                   alt={event.instructor.name}
                   className="w-16 h-16 rounded-full object-cover"
                 />
                 <div>
-                  <h3 className="font-bold text-lg text-gray-900">
-                    {event.instructor.name}
-                  </h3>
+                  <h3 className="font-bold">{event.instructor.name}</h3>
                   <p className="text-gray-600">{event.instructor.role}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="text-center">
-                  <div className="font-bold text-xl text-gray-900">
-                    {event.instructor.stats.courses}
-                  </div>
-                  <div className="text-sm text-gray-500">Courses</div>
+                  <div className="font-bold">{event.instructor.stats.courses}</div>
+                  <div className="text-sm text-gray-600">Courses</div>
                 </div>
                 <div className="text-center">
-                  <div className="font-bold text-xl text-gray-900">
-                    {event.instructor.stats.articles}
-                  </div>
-                  <div className="text-sm text-gray-500">Articles</div>
+                  <div className="font-bold">{event.instructor.stats.articles}</div>
+                  <div className="text-sm text-gray-600">Articles</div>
                 </div>
                 <div className="text-center">
-                  <div className="font-bold text-xl text-gray-900">
-                    {event.instructor.stats.students}
-                  </div>
-                  <div className="text-sm text-gray-500">Students</div>
+                  <div className="font-bold">{event.instructor.stats.students}</div>
+                  <div className="text-sm text-gray-600">Students</div>
                 </div>
               </div>
 
-              <div className="prose prose-sm max-w-none text-gray-600 mb-6">
+              <div className="space-y-4 mb-6">
                 {event.instructor.description.split('\n\n').map((paragraph, index) => (
-                  <p key={index} className="mb-4">
-                    {paragraph}
-                  </p>
+                  <p key={index} className="text-sm text-gray-600">{paragraph}</p>
                 ))}
               </div>
 
-              <div className="space-y-3">
-                {event.instructor.linkedin && (
-                  <a
-                    href={event.instructor.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-                  >
-                    <Linkedin className="w-5 h-5" />
-                    LinkedIn Profile
-                  </a>
-                )}
-                {event.instructor.email && (
-                  <a
-                    href={`mailto:${event.instructor.email}`}
-                    className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-                  >
-                    <Mail className="w-5 h-5" />
-                    {event.instructor.email}
-                  </a>
-                )}
-                {event.instructor.website && (
-                  <a
-                    href={event.instructor.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-                  >
-                    <Globe className="w-5 h-5" />
-                    Personal Website
-                  </a>
-                )}
-                {event.instructor.medium && (
-                  <a
-                    href={event.instructor.medium}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-                  >
-                    <Book className="w-5 h-5" />
-                    Medium Blog
-                  </a>
-                )}
-              </div>
-            </div>
-
-            {/* Skills Card */}
-            <div className="bg-white rounded-2xl p-8 shadow-lg">
-              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <Brain className="w-6 h-6 text-indigo-600" />
-                Skills Covered
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {event.skills.map((skill, index) => (
-                  <span
-                    key={index}
-                    className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-sm"
-                  >
-                    {skill}
-                  </span>
+              <div className="space-y-2">
+                <h4 className="font-medium mb-3">Expertise</h4>
+                {event.instructor.expertise.map((skill, index) => (
+                  <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
+                    <Brain className="w-4 h-4 text-indigo-600" />
+                    <span>{skill}</span>
+                  </div>
                 ))}
+              </div>
+
+              <div className="border-t border-gray-200 mt-6 pt-6">
+                <div className="space-y-3">
+                  {event.instructor.linkedin && (
+                    <a 
+                      href={event.instructor.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+                    >
+                      <Linkedin className="w-4 h-4" />
+                      <span>LinkedIn</span>
+                    </a>
+                  )}
+                  {event.instructor.email && (
+                    <a 
+                      href={`mailto:${event.instructor.email}`}
+                      className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+                    >
+                      <Mail className="w-4 h-4" />
+                      <span>{event.instructor.email}</span>
+                    </a>
+                  )}
+                  {event.instructor.medium && (
+                    <a 
+                      href={event.instructor.medium}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+                    >
+                      <Book className="w-4 h-4" />
+                      <span>Medium</span>
+                    </a>
+                  )}
+                  {event.instructor.website && (
+                    <a 
+                      href={event.instructor.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+                    >
+                      <Globe className="w-4 h-4" />
+                      <span>Website</span>
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <AuthModal 
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onSuccess={handleAuthSuccess}
-      />
-
-      <PaymentModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
-        onSuccess={handlePaymentSuccess}
-        price={event.price || 0}
-        title={event.title}
-      />
     </div>
   );
 }
